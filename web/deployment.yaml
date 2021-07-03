@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: api-conversao
+  template:
+    metadata:
+      labels:
+        app: api-conversao
+    spec:
+      containers:
+        - name: api-conversao
+          image: romulovitor/api-conversao:v2
+          ports:
+            - containerPort: 5000
+          env:
+          - name: MONGODB_DB
+            value: admin
+          - name: MONGODB_HOST
+            value: mongo-service
+          - name: MONGODB_PORT
+            value: "27017"
+          - name: MONGODB_USERNAME
+            value: mongouser
+          - name: MONGODB_PASSWORD
+            value: mongopwd
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-conversao-service
+spec:
+  selector:
+    app: api-conversao
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30000
+  type: NodePort
